@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RG Monitor — Inteligência de Mercado</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: #2a2a3a;
+    --accent: #00e5a0;
+    --accent2: #7b5ea7;
+    --accent3: #e5a000;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --alta: #00e5a0;
+    --media: #e5a000;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 28px 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(10,10,15,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .header-meta { font-size: 0.78rem; color: var(--muted); }
+
+  #total-badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  #refresh-btn {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    transition: all 0.2s;
+  }
+  #refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* LOADING */
+  #loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 20px;
+  }
+
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loading p { color: var(--muted); font-size: 0.9rem; }
+
+  /* ERROR */
+  #error-msg {
+    display: none;
+    text-align: center;
+    padding: 80px 40px;
+    color: var(--muted);
+  }
+
+  #error-msg h3 { color: var(--text); font-family: 'Syne', sans-serif; margin-bottom: 8px; }
+
+  /* STATS */
+  .stats-bar {
+    padding: 20px 40px;
+    display: flex;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+
+  .stat { display: flex; flex-direction: column; min-width: fit-content; }
+  .stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--accent); line-height: 1; }
+  .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-divider { width: 1px; background: var(--border); margin: 0 4px; }
+
+  /* FILTERS */
+  .filters {
+    padding: 16px 40px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .filter-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-right: 4px; }
+
+  select, input[type="text"] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  select:focus, input[type="text"]:focus { border-color: var(--accent); }
+  input[type="text"] { width: 200px; }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .filter-count { margin-left: auto; font-size: 0.8rem; color: var(--muted); }
+  .filter-count span { color: var(--text); font-weight: 500; }
+
+  .view-toggle { display: flex; gap: 6px; }
+  .view-btn {
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.15s;
+  }
+  .view-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* CARDS */
+  #news-container {
+    padding: 28px 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  #news-container.list-view { grid-template-columns: 1fr; gap: 8px; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, transform 0.15s;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .list-view .card {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 14px 20px;
+    gap: 16px;
+  }
+
+  .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .list-view .card-meta { flex-direction: column; align-items: flex-start; min-width: 160px; }
+
+  .tag {
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .tag-alta { background: rgba(0,229,160,0.12); color: var(--alta); border: 1px solid rgba(0,229,160,0.2); }
+  .tag-media { background: rgba(229,160,0,0.12); color: var(--media); border: 1px solid rgba(229,160,0,0.2); }
+  .tag-territorio { background: rgba(123,94,167,0.15); color: #a88fd4; border: 1px solid rgba(123,94,167,0.2); }
+
+  .fonte-name { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
+
+  .card-body { flex: 1; min-width: 0; }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .card-resumo {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .list-view .card-resumo { -webkit-line-clamp: 2; }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+  }
+
+  .card-date { font-size: 0.72rem; color: var(--muted); }
+  .card-link { font-size: 0.72rem; color: var(--accent); font-weight: 600; }
+  .card-categoria { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+
+  .empty { grid-column: 1/-1; text-align: center; padding: 80px 40px; color: var(--muted); }
+  .empty h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
+
+  #load-more-btn {
+    display: none;
+    margin: 0 auto 40px;
+    padding: 12px 40px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  #load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">RG<span>.</span>Monitor</div>
+  <div class="header-right">
+    <div class="header-meta">Inteligência de Mercado F&B <span id="total-badge">—</span></div>
+    <button id="refresh-btn" onclick="loadData()">↻ Atualizar</button>
+  </div>
+</header>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Carregando notícias da planilha...</p>
+</div>
+
+<div id="error-msg">
+  <h3>Não foi possível carregar os dados</h3>
+  <p>Verifique se a planilha está pública e tente novamente.</p>
+</div>
+
+<div id="app" style="display:none">
+  <div class="stats-bar" id="stats-bar"></div>
+
+  <div class="filters">
+    <span class="filter-label">Filtrar</span>
+    <select id="f-territorio"><option value="">Território</option></select>
+    <select id="f-categoria"><option value="">Categoria</option></select>
+    <select id="f-prioridade"><option value="">Prioridade</option></select>
+    <select id="f-fonte"><option value="">Fonte</option></select>
+    <input type="text" id="f-busca" placeholder="Buscar palavra-chave...">
+    <span class="filter-count"><span id="count-visible">0</span> resultados</span>
+    <div class="view-toggle">
+      <button class="view-btn active" onclick="setView('grid')" id="btn-grid">⊞ Cards</button>
+      <button class="view-btn" onclick="setView('list')" id="btn-list">☰ Lista</button>
+    </div>
+  </div>
+
+  <div id="news-container"></div>
+  <button id="load-more-btn" onclick="loadMore()">Carregar mais</button>
+</div>
+
+<script>
+// =============================================
+// CONFIGURAÇÃO — ID da planilha Google Sheets
+// =============================================
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ3lO40Iv3llgiDlzHOVOH9ypBrQveJ9OUuGJGVdYr7hLqq8oT4djYOdXd2G0pl2_HUpZNlJLxB14A-/pub?gid=2009431796&single=true&output=csv";
+
+// =============================================
+
+let allData = [];
+let filtered = [];
+let page = 0;
+const PER_PAGE = 48;
+
+async function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
+
+  try {
+    const url = CSV_URL;
+    const resp = await fetch(url, { redirect: "follow" });
+    if (!resp.ok) throw new Error('Erro ao carregar planilha');
+    const csv = await resp.text();
+    allData = parseCSV(csv).filter(d => d.titulo && d.titulo.length > 8 && d.link && d.link.startsWith('http'));
+    init();
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'block';
+    console.error(e);
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/ /g,'_').replace(/[^a-z_]/g,''));
+  return lines.slice(1).map(line => {
+    const vals = parseCSVLine(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''));
+    return obj;
+  });
+}
+
+function parseCSVLine(line) {
+  const result = []; let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; }
+    else if (c === ',' && !inQ) { result.push(cur); cur = ''; }
+    else cur += c;
+  }
+  result.push(cur);
+  return result;
+}
+
+function init() {
+  populateFilters();
+  applyFilters();
+  updateStats();
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  ['f-territorio','f-categoria','f-prioridade','f-fonte'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyFilters));
+  document.getElementById('f-busca').addEventListener('input', applyFilters);
+}
+
+function populateFilters() {
+  const sets = { territorio: new Set(), categoria: new Set(), prioridade: new Set(), fonte: new Set() };
+  allData.forEach(d => {
+    if (d.territrio || d.territorio) sets.territorio.add(d.territrio || d.territorio);
+    if (d.categoria) sets.categoria.add(d.categoria);
+    if (d.prioridade) sets.prioridade.add(d.prioridade);
+    if (d.fonte) sets.fonte.add(d.fonte);
+  });
+  fillSelect('f-territorio', sets.territorio, 'Território');
+  fillSelect('f-categoria', sets.categoria, 'Categoria');
+  fillSelect('f-prioridade', sets.prioridade, 'Prioridade');
+  fillSelect('f-fonte', sets.fonte, 'Fonte');
+}
+
+function fillSelect(id, set, label) {
+  const el = document.getElementById(id);
+  el.innerHTML = `<option value="">${label}</option>`;
+  [...set].sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
+}
+
+function applyFilters() {
+  const t = document.getElementById('f-territorio').value;
+  const c = document.getElementById('f-categoria').value;
+  const p = document.getElementById('f-prioridade').value;
+  const f = document.getElementById('f-fonte').value;
+  const q = document.getElementById('f-busca').value.toLowerCase();
+
+  filtered = allData.filter(d => {
+    const terr = d.territrio || d.territorio || '';
+    if (t && terr !== t) return false;
+    if (c && d.categoria !== c) return false;
+    if (p && d.prioridade !== p) return false;
+    if (f && d.fonte !== f) return false;
+    if (q && !d.titulo.toLowerCase().includes(q) && !(d.resumo||'').toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  document.getElementById('count-visible').textContent = filtered.length;
+  page = 0;
+  renderCards(true);
+}
+
+function renderCards(reset) {
+  const container = document.getElementById('news-container');
+  if (reset) container.innerHTML = '';
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty"><h3>Nenhuma notícia encontrada</h3><p>Tente ajustar os filtros</p></div>`;
+    document.getElementById('load-more-btn').style.display = 'none';
+    return;
+  }
+
+  const slice = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
+  slice.forEach(d => {
+    const terr = d.territrio || d.territorio || '';
+    const prioClass = d.prioridade === 'Alta' ? 'tag-alta' : 'tag-media';
+    const dataStr = d.data_noticia && d.data_noticia !== 'null' ? `<span class="card-date">${d.data_noticia.substring(0,10)}</span>` : '<span></span>';
+    const resumo = d.resumo && d.resumo !== 'null' && d.resumo.length > 5 ? `<p class="card-resumo">${d.resumo}</p>` : '';
+
+    const el = document.createElement('a');
+    el.href = d.link;
+    el.target = '_blank';
+    el.rel = 'noopener';
+    el.className = 'card';
+    el.innerHTML = `
+      <div class="card-meta">
+        <span class="tag ${prioClass}">${d.prioridade||''}</span>
+        <span class="tag tag-territorio">${terr}</span>
+        <span class="fonte-name">${d.fonte||''}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${d.titulo}</div>
+        ${resumo}
+        <div class="card-categoria">${d.categoria||''}</div>
+      </div>
+      <div class="card-footer">
+        ${dataStr}
+        <span class="card-link">Ler notícia →</span>
+      </div>`;
+    container.appendChild(el);
+  });
+
+  const hasMore = (page + 1) * PER_PAGE < filtered.length;
+  document.getElementById('load-more-btn').style.display = hasMore ? 'block' : 'none';
+}
+
+function loadMore() { page++; renderCards(false); }
+
+function setView(mode) {
+  document.getElementById('news-container').className = mode === 'list' ? 'list-view' : '';
+  document.getElementById('btn-grid').className = 'view-btn' + (mode === 'grid' ? ' active' : '');
+  document.getElementById('btn-list').className = 'view-btn' + (mode === 'list' ? ' active' : '');
+}
+
+function updateStats() {
+  const total = allData.length;
+  const alta = allData.filter(d => d.prioridade === 'Alta').length;
+  const territorios = new Set(allData.map(d => d.territrio || d.territorio)).size;
+  const fontes = new Set(allData.map(d => d.fonte)).size;
+  const data = allData[0]?.data_coleta || '';
+  document.getElementById('total-badge').textContent = `${total} notícias`;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat"><span class="stat-value">${total}</span><span class="stat-label">Total de notícias</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-value">${alta}</span><span class="stat-label">Alta prioridade</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-value">${fontes}</span><span class="stat-label">Fontes</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-value">${territorios}</span><span class="stat-label">Territórios</span></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><span class="stat-value">${data}</span><span class="stat-label">Última coleta</span></div>`;
+}
+
+// Carregar ao abrir
+loadData();
+</script>
+</body>
+</html>
