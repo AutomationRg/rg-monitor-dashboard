@@ -29,7 +29,6 @@
     min-height: 100vh;
   }
 
-  /* HEADER */
   header {
     padding: 28px 40px;
     border-bottom: 1px solid var(--border);
@@ -48,16 +47,13 @@
     font-weight: 800;
     font-size: 1.1rem;
     letter-spacing: 0.05em;
-    color: var(--text);
   }
 
   .logo span { color: var(--accent); }
 
-  .header-meta {
-    font-size: 0.78rem;
-    color: var(--muted);
-    text-align: right;
-  }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+
+  .header-meta { font-size: 0.78rem; color: var(--muted); }
 
   #total-badge {
     display: inline-block;
@@ -68,56 +64,53 @@
     font-size: 0.72rem;
     padding: 3px 10px;
     border-radius: 20px;
-    margin-left: 8px;
   }
 
-  /* UPLOAD ZONE */
-  #upload-zone {
-    margin: 60px auto;
-    max-width: 520px;
-    text-align: center;
-    padding: 60px 40px;
-    border: 2px dashed var(--border);
-    border-radius: 16px;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-  }
-
-  #upload-zone:hover, #upload-zone.drag { border-color: var(--accent); background: rgba(0,229,160,0.04); }
-
-  #upload-zone h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-
-  #upload-zone p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-
-  #upload-zone .icon { font-size: 3rem; margin-bottom: 20px; }
-
-  #file-input { display: none; }
-
-  .btn-upload {
-    display: inline-block;
-    margin-top: 24px;
-    padding: 12px 28px;
-    background: var(--accent);
-    color: #000;
-    font-family: 'Syne', sans-serif;
-    font-weight: 700;
-    font-size: 0.85rem;
+  #refresh-btn {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
     border-radius: 8px;
     cursor: pointer;
-    border: none;
-    transition: opacity 0.2s;
+    font-size: 0.78rem;
+    transition: all 0.2s;
   }
-  .btn-upload:hover { opacity: 0.85; }
+  #refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-  /* MAIN CONTENT */
-  #app { display: none; }
+  /* LOADING */
+  #loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh;
+    gap: 20px;
+  }
 
-  /* STATS BAR */
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  #loading p { color: var(--muted); font-size: 0.9rem; }
+
+  /* ERROR */
+  #error-msg {
+    display: none;
+    text-align: center;
+    padding: 80px 40px;
+    color: var(--muted);
+  }
+
+  #error-msg h3 { color: var(--text); font-family: 'Syne', sans-serif; margin-bottom: 8px; }
+
+  /* STATS */
   .stats-bar {
     padding: 20px 40px;
     display: flex;
@@ -126,29 +119,16 @@
     overflow-x: auto;
   }
 
-  .stat {
-    display: flex;
-    flex-direction: column;
-    min-width: fit-content;
-  }
-
-  .stat-value {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.6rem;
-    color: var(--accent);
-    line-height: 1;
-  }
-
+  .stat { display: flex; flex-direction: column; min-width: fit-content; }
+  .stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--accent); line-height: 1; }
   .stat-label { font-size: 0.72rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
-
   .stat-divider { width: 1px; background: var(--border); margin: 0 4px; }
 
   /* FILTERS */
   .filters {
-    padding: 20px 40px;
+    padding: 16px 40px;
     display: flex;
-    gap: 12px;
+    gap: 10px;
     flex-wrap: wrap;
     align-items: center;
     border-bottom: 1px solid var(--border);
@@ -171,19 +151,12 @@
   }
 
   select:focus, input[type="text"]:focus { border-color: var(--accent); }
-
-  input[type="text"] { width: 220px; }
+  input[type="text"] { width: 200px; }
   input[type="text"]::placeholder { color: var(--muted); }
 
-  .filter-count {
-    margin-left: auto;
-    font-size: 0.8rem;
-    color: var(--muted);
-  }
-
+  .filter-count { margin-left: auto; font-size: 0.8rem; color: var(--muted); }
   .filter-count span { color: var(--text); font-weight: 500; }
 
-  /* VIEW TOGGLE */
   .view-toggle { display: flex; gap: 6px; }
   .view-btn {
     padding: 7px 12px;
@@ -197,7 +170,7 @@
   }
   .view-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
 
-  /* CARDS GRID */
+  /* CARDS */
   #news-container {
     padding: 28px 40px;
     display: grid;
@@ -205,10 +178,7 @@
     gap: 16px;
   }
 
-  #news-container.list-view {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
+  #news-container.list-view { grid-template-columns: 1fr; gap: 8px; }
 
   .card {
     background: var(--surface);
@@ -221,7 +191,6 @@
     transition: border-color 0.2s, transform 0.15s;
     text-decoration: none;
     color: inherit;
-    cursor: pointer;
   }
 
   .card:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -233,14 +202,8 @@
     gap: 16px;
   }
 
-  .card-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  .list-view .card-meta { flex-direction: column; align-items: flex-start; min-width: 180px; }
+  .card-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .list-view .card-meta { flex-direction: column; align-items: flex-start; min-width: 160px; }
 
   .tag {
     font-size: 0.68rem;
@@ -252,17 +215,13 @@
     white-space: nowrap;
   }
 
-  .tag-prioridade-alta { background: rgba(0,229,160,0.12); color: var(--alta); border: 1px solid rgba(0,229,160,0.2); }
-  .tag-prioridade-media { background: rgba(229,160,0,0.12); color: var(--media); border: 1px solid rgba(229,160,0,0.2); }
+  .tag-alta { background: rgba(0,229,160,0.12); color: var(--alta); border: 1px solid rgba(0,229,160,0.2); }
+  .tag-media { background: rgba(229,160,0,0.12); color: var(--media); border: 1px solid rgba(229,160,0,0.2); }
   .tag-territorio { background: rgba(123,94,167,0.15); color: #a88fd4; border: 1px solid rgba(123,94,167,0.2); }
 
-  .fonte-name {
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-weight: 500;
-  }
+  .fonte-name { font-size: 0.72rem; color: var(--muted); font-weight: 500; }
 
-  .card-body { flex: 1; }
+  .card-body { flex: 1; min-width: 0; }
 
   .card-title {
     font-family: 'Syne', sans-serif;
@@ -293,36 +252,14 @@
   }
 
   .card-date { font-size: 0.72rem; color: var(--muted); }
+  .card-link { font-size: 0.72rem; color: var(--accent); font-weight: 600; }
+  .card-categoria { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
 
-  .card-link {
-    font-size: 0.72rem;
-    color: var(--accent);
-    font-weight: 600;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .card-categoria {
-    font-size: 0.7rem;
-    color: var(--muted);
-    margin-top: 2px;
-  }
-
-  /* EMPTY STATE */
-  .empty {
-    grid-column: 1/-1;
-    text-align: center;
-    padding: 80px 40px;
-    color: var(--muted);
-  }
-
+  .empty { grid-column: 1/-1; text-align: center; padding: 80px 40px; color: var(--muted); }
   .empty h3 { font-family: 'Syne', sans-serif; font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
 
-  /* LOAD MORE */
   #load-more-btn {
-    display: block;
+    display: none;
     margin: 0 auto 40px;
     padding: 12px 40px;
     background: transparent;
@@ -336,9 +273,7 @@
     transition: border-color 0.2s, color 0.2s;
   }
   #load-more-btn:hover { border-color: var(--accent); color: var(--accent); }
-  #load-more-btn:disabled { opacity: 0.3; cursor: default; }
 
-  /* SCROLLBAR */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
@@ -348,34 +283,32 @@
 
 <header>
   <div class="logo">RG<span>.</span>Monitor</div>
-  <div class="header-meta">
-    Inteligência de Mercado F&B
-    <span id="total-badge">0 notícias</span>
+  <div class="header-right">
+    <div class="header-meta">Inteligência de Mercado F&B <span id="total-badge">—</span></div>
+    <button id="refresh-btn" onclick="loadData()">↻ Atualizar</button>
   </div>
 </header>
 
-<!-- UPLOAD -->
-<div id="upload-zone" onclick="document.getElementById('file-input').click()">
-  <div class="icon">📂</div>
-  <h2>Carregar coleta de notícias</h2>
-  <p>Arraste o arquivo CSV gerado pelo script<br>ou clique para selecionar</p>
-  <button class="btn-upload" onclick="event.stopPropagation(); document.getElementById('file-input').click()">Selecionar arquivo CSV</button>
-  <input type="file" id="file-input" accept=".csv,.json">
+<div id="loading">
+  <div class="spinner"></div>
+  <p>Carregando notícias da planilha...</p>
 </div>
 
-<!-- APP -->
-<div id="app">
-  <!-- STATS -->
+<div id="error-msg">
+  <h3>Não foi possível carregar os dados</h3>
+  <p>Verifique se a planilha está pública e tente novamente.</p>
+</div>
+
+<div id="app" style="display:none">
   <div class="stats-bar" id="stats-bar"></div>
 
-  <!-- FILTERS -->
   <div class="filters">
-    <span class="filter-label">Filtrar por</span>
+    <span class="filter-label">Filtrar</span>
     <select id="f-territorio"><option value="">Território</option></select>
     <select id="f-categoria"><option value="">Categoria</option></select>
     <select id="f-prioridade"><option value="">Prioridade</option></select>
     <select id="f-fonte"><option value="">Fonte</option></select>
-    <input type="text" id="f-busca" placeholder="Buscar por palavra-chave...">
+    <input type="text" id="f-busca" placeholder="Buscar palavra-chave...">
     <span class="filter-count"><span id="count-visible">0</span> resultados</span>
     <div class="view-toggle">
       <button class="view-btn active" onclick="setView('grid')" id="btn-grid">⊞ Cards</button>
@@ -383,62 +316,55 @@
     </div>
   </div>
 
-  <!-- CARDS -->
   <div id="news-container"></div>
   <button id="load-more-btn" onclick="loadMore()">Carregar mais</button>
 </div>
 
 <script>
+// =============================================
+// CONFIGURAÇÃO — ID da planilha Google Sheets
+// =============================================
+const SHEET_ID = '1_7GcKg7K-OLGOhbVwUFtu_NJrGFEgg73J1RUlWVrGWw';
+const ABA = 'Todas'; // aba que vai ler
+// =============================================
+
 let allData = [];
 let filtered = [];
 let page = 0;
 const PER_PAGE = 48;
-let viewMode = 'grid';
 
-// DRAG & DROP
-const zone = document.getElementById('upload-zone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('drag');
-  handleFile(e.dataTransfer.files[0]);
-});
+async function loadData() {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('error-msg').style.display = 'none';
 
-document.getElementById('file-input').addEventListener('change', e => {
-  if (e.target.files[0]) handleFile(e.target.files[0]);
-});
-
-function handleFile(file) {
-  const reader = new FileReader();
-  reader.onload = e => {
-    const content = e.target.result;
-    if (file.name.endsWith('.json')) {
-      allData = JSON.parse(content);
-    } else {
-      allData = parseCSV(content);
-    }
-    // Limpar dados inválidos
-    allData = allData.filter(d => d.titulo && d.titulo.length > 8 && d.link && d.link.startsWith('http'));
+  try {
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(ABA)}`;
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('Erro ao carregar planilha');
+    const csv = await resp.text();
+    allData = parseCSV(csv).filter(d => d.titulo && d.titulo.length > 8 && d.link && d.link.startsWith('http'));
     init();
-  };
-  reader.readAsText(file, 'UTF-8');
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'block';
+    console.error(e);
+  }
 }
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = parseCSVLine(lines[0]);
+  const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/ /g,'_').replace(/[^a-z_]/g,''));
   return lines.slice(1).map(line => {
     const vals = parseCSVLine(line);
     const obj = {};
-    headers.forEach((h, i) => obj[h.trim().toLowerCase().replace(/ /g,'_')] = (vals[i] || '').trim());
+    headers.forEach((h, i) => obj[h] = (vals[i]||'').trim().replace(/^"|"$/g,''));
     return obj;
   });
 }
 
 function parseCSVLine(line) {
-  const result = [];
-  let cur = '', inQ = false;
+  const result = []; let cur = '', inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
     if (c === '"') { inQ = !inQ; }
@@ -452,20 +378,18 @@ function parseCSVLine(line) {
 function init() {
   populateFilters();
   applyFilters();
-  document.getElementById('upload-zone').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
   updateStats();
-
-  ['f-territorio','f-categoria','f-prioridade','f-fonte'].forEach(id => {
-    document.getElementById(id).addEventListener('change', applyFilters);
-  });
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  ['f-territorio','f-categoria','f-prioridade','f-fonte'].forEach(id =>
+    document.getElementById(id).addEventListener('change', applyFilters));
   document.getElementById('f-busca').addEventListener('input', applyFilters);
 }
 
 function populateFilters() {
   const sets = { territorio: new Set(), categoria: new Set(), prioridade: new Set(), fonte: new Set() };
   allData.forEach(d => {
-    if (d.territorio) sets.territorio.add(d.territorio);
+    if (d.territrio || d.territorio) sets.territorio.add(d.territrio || d.territorio);
     if (d.categoria) sets.categoria.add(d.categoria);
     if (d.prioridade) sets.prioridade.add(d.prioridade);
     if (d.fonte) sets.fonte.add(d.fonte);
@@ -479,9 +403,7 @@ function populateFilters() {
 function fillSelect(id, set, label) {
   const el = document.getElementById(id);
   el.innerHTML = `<option value="">${label}</option>`;
-  [...set].sort().forEach(v => {
-    el.innerHTML += `<option value="${v}">${v}</option>`;
-  });
+  [...set].sort().forEach(v => el.innerHTML += `<option value="${v}">${v}</option>`);
 }
 
 function applyFilters() {
@@ -492,7 +414,8 @@ function applyFilters() {
   const q = document.getElementById('f-busca').value.toLowerCase();
 
   filtered = allData.filter(d => {
-    if (t && d.territorio !== t) return false;
+    const terr = d.territrio || d.territorio || '';
+    if (t && terr !== t) return false;
     if (c && d.categoria !== c) return false;
     if (p && d.prioridade !== p) return false;
     if (f && d.fonte !== f) return false;
@@ -507,9 +430,6 @@ function applyFilters() {
 
 function renderCards(reset) {
   const container = document.getElementById('news-container');
-  const start = page * PER_PAGE;
-  const slice = filtered.slice(start, start + PER_PAGE);
-
   if (reset) container.innerHTML = '';
 
   if (filtered.length === 0) {
@@ -518,50 +438,44 @@ function renderCards(reset) {
     return;
   }
 
+  const slice = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
   slice.forEach(d => {
+    const terr = d.territrio || d.territorio || '';
+    const prioClass = d.prioridade === 'Alta' ? 'tag-alta' : 'tag-media';
+    const dataStr = d.data_noticia && d.data_noticia !== 'null' ? `<span class="card-date">${d.data_noticia.substring(0,10)}</span>` : '<span></span>';
+    const resumo = d.resumo && d.resumo !== 'null' && d.resumo.length > 5 ? `<p class="card-resumo">${d.resumo}</p>` : '';
+
     const el = document.createElement('a');
     el.href = d.link;
     el.target = '_blank';
     el.rel = 'noopener';
     el.className = 'card';
-
-    const prioClass = d.prioridade === 'Alta' ? 'tag-prioridade-alta' : 'tag-prioridade-media';
-    const dataStr = d.data_noticia && d.data_noticia !== 'null' ? `<span class="card-date">${d.data_noticia.substring(0,10)}</span>` : '';
-    const resumo = d.resumo && d.resumo !== 'null' ? `<p class="card-resumo">${d.resumo}</p>` : '';
-
     el.innerHTML = `
       <div class="card-meta">
-        <span class="tag ${prioClass}">${d.prioridade || ''}</span>
-        <span class="tag tag-territorio">${d.territorio || ''}</span>
-        <span class="fonte-name">${d.fonte || ''}</span>
+        <span class="tag ${prioClass}">${d.prioridade||''}</span>
+        <span class="tag tag-territorio">${terr}</span>
+        <span class="fonte-name">${d.fonte||''}</span>
       </div>
       <div class="card-body">
         <div class="card-title">${d.titulo}</div>
         ${resumo}
-        <div class="card-categoria">${d.categoria || ''}</div>
+        <div class="card-categoria">${d.categoria||''}</div>
       </div>
       <div class="card-footer">
         ${dataStr}
         <span class="card-link">Ler notícia →</span>
-      </div>
-    `;
+      </div>`;
     container.appendChild(el);
   });
 
-  const hasMore = start + PER_PAGE < filtered.length;
-  const btn = document.getElementById('load-more-btn');
-  btn.style.display = hasMore ? 'block' : 'none';
+  const hasMore = (page + 1) * PER_PAGE < filtered.length;
+  document.getElementById('load-more-btn').style.display = hasMore ? 'block' : 'none';
 }
 
-function loadMore() {
-  page++;
-  renderCards(false);
-}
+function loadMore() { page++; renderCards(false); }
 
 function setView(mode) {
-  viewMode = mode;
-  const container = document.getElementById('news-container');
-  container.className = mode === 'list' ? 'list-view' : '';
+  document.getElementById('news-container').className = mode === 'list' ? 'list-view' : '';
   document.getElementById('btn-grid').className = 'view-btn' + (mode === 'grid' ? ' active' : '');
   document.getElementById('btn-list').className = 'view-btn' + (mode === 'list' ? ' active' : '');
 }
@@ -569,24 +483,24 @@ function setView(mode) {
 function updateStats() {
   const total = allData.length;
   const alta = allData.filter(d => d.prioridade === 'Alta').length;
-  const territorios = new Set(allData.map(d => d.territorio)).size;
+  const territorios = new Set(allData.map(d => d.territrio || d.territorio)).size;
   const fontes = new Set(allData.map(d => d.fonte)).size;
-  const dataColeta = allData[0]?.data_coleta || '';
-
+  const data = allData[0]?.data_coleta || '';
   document.getElementById('total-badge').textContent = `${total} notícias`;
-
   document.getElementById('stats-bar').innerHTML = `
     <div class="stat"><span class="stat-value">${total}</span><span class="stat-label">Total de notícias</span></div>
     <div class="stat-divider"></div>
     <div class="stat"><span class="stat-value">${alta}</span><span class="stat-label">Alta prioridade</span></div>
     <div class="stat-divider"></div>
-    <div class="stat"><span class="stat-value">${fontes}</span><span class="stat-label">Fontes monitoradas</span></div>
+    <div class="stat"><span class="stat-value">${fontes}</span><span class="stat-label">Fontes</span></div>
     <div class="stat-divider"></div>
     <div class="stat"><span class="stat-value">${territorios}</span><span class="stat-label">Territórios</span></div>
     <div class="stat-divider"></div>
-    <div class="stat"><span class="stat-value">${dataColeta}</span><span class="stat-label">Data da coleta</span></div>
-  `;
+    <div class="stat"><span class="stat-value">${data}</span><span class="stat-label">Última coleta</span></div>`;
 }
+
+// Carregar ao abrir
+loadData();
 </script>
 </body>
 </html>
