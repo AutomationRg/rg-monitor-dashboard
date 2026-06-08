@@ -354,7 +354,11 @@ async function loadData() {
 
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = parseCSVLine(lines[0]).map(h => h.trim().toLowerCase().replace(/ /g,'_').replace(/[^a-z_]/g,''));
+  const headers = parseCSVLine(lines[0]).map(h => {
+    return h.trim().toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/ /g,'_').replace(/[^a-z_]/g,'');
+  });
   return lines.slice(1).map(line => {
     const vals = parseCSVLine(line);
     const obj = {};
@@ -389,7 +393,7 @@ function init() {
 function populateFilters() {
   const sets = { territorio: new Set(), categoria: new Set(), prioridade: new Set(), fonte: new Set() };
   allData.forEach(d => {
-    if (d.territrio || d.territorio) sets.territorio.add(d.territrio || d.territorio);
+    if (d.territrio || d.territorio || d.territ_rio) sets.territorio.add(d.territrio || d.territorio || d.territ_rio);
     if (d.categoria) sets.categoria.add(d.categoria);
     if (d.prioridade) sets.prioridade.add(d.prioridade);
     if (d.fonte) sets.fonte.add(d.fonte);
@@ -414,7 +418,7 @@ function applyFilters() {
   const q = document.getElementById('f-busca').value.toLowerCase();
 
   filtered = allData.filter(d => {
-    const terr = d.territrio || d.territorio || '';
+    const terr = d.territrio || d.territorio || d.territ_rio || '';
     if (t && terr !== t) return false;
     if (c && d.categoria !== c) return false;
     if (p && d.prioridade !== p) return false;
@@ -440,7 +444,7 @@ function renderCards(reset) {
 
   const slice = filtered.slice(page * PER_PAGE, (page + 1) * PER_PAGE);
   slice.forEach(d => {
-    const terr = d.territrio || d.territorio || '';
+    const terr = d.territrio || d.territorio || d.territ_rio || '';
     const prioClass = d.prioridade === 'Alta' ? 'tag-alta' : 'tag-media';
     const dataStr = d.data_noticia && d.data_noticia !== 'null' ? `<span class="card-date">${d.data_noticia.substring(0,10)}</span>` : '<span></span>';
     const resumo = d.resumo && d.resumo !== 'null' && d.resumo.length > 5 ? `<p class="card-resumo">${d.resumo}</p>` : '';
@@ -483,7 +487,7 @@ function setView(mode) {
 function updateStats() {
   const total = allData.length;
   const alta = allData.filter(d => d.prioridade === 'Alta').length;
-  const territorios = new Set(allData.map(d => d.territrio || d.territorio)).size;
+  const territorios = new Set(allData.map(d => d.territrio || d.territorio || d.territ_rio)).size;
   const fontes = new Set(allData.map(d => d.fonte)).size;
   const data = allData[0]?.data_coleta || '';
   document.getElementById('total-badge').textContent = `${total} notícias`;
